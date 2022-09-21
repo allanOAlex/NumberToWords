@@ -1,95 +1,104 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Exercice01.Core
+namespace Exercise01
 {
-    public static class NumberToTextExtensionMethod
+    public static class NumberToWordsExtensionMethod
     {
-        public static string ToWords(this string num)
+        public static string Towards(this BigInteger num)
         {
-            var numberToText = new NumberToText();
-            return numberToText.ToWords(num);
+
+            var numberToWords = new NumberToWords();
+            return numberToWords.Towards(num);
         }
 
     }
 
-    public class NumberToText
+    public class NumberToWords
     {
-        private Dictionary<string, string> textString = new Dictionary<string, string>();
-        private Dictionary<string, string> scale = new Dictionary<string, string>();
+        private Dictionary<string, string> TextString = new Dictionary<string, string>();
+        private Dictionary<string, string> Scale = new Dictionary<string, string>();
         private int integer;
+        private ulong longInt;
         private BigInteger bigInteger;
         private string prefix = "negative ";
         private string and = "and ";
 
         private StringBuilder builder;
 
-        public NumberToText()
+        public NumberToWords()
         {
             Initialize();
         }
 
-        public string ToWords(string num)
+        public string Towards(BigInteger num)
         {
             builder = new StringBuilder();
 
-            if (num == "0")
+            if (num == 0)
             {
-                builder.Append(textString[num]);
+                builder.Append(TextString[num.ToString()]);
                 return builder.ToString();
             }
 
-			if (int.TryParse(num, out integer))
-			{
-                if (Convert.ToInt32(num) < Convert.ToInt32("0"))
-				{
-                    num = num.Replace("-", "");
-
-                    foreach (var scale in scale)
-                        num = Append(num, scale.Key);
-
-                    AppendValues(num);
-
-                    return prefix + builder.ToString().Trim();
-
-                }
-
-            }
-
-            if (BigInteger.TryParse(num, out bigInteger))
+            if (BigInteger.TryParse(num.ToString(), out bigInteger))
             {
-                if (BigInteger.Parse(num) < Convert.ToInt32("0"))
-				{
-                    num = num.Replace("-", "");
+                if (num < 0)
+                {
+                    num *= (-1);
 
-                    foreach (var scale in scale)
-                        num = Append(num, scale.Key);
+                    foreach (var scale in Scale)
+                    {
+                        string value = Convert.ToString(num);
+                        string newNum = value;
+                        newNum = Append(num.ToString(), scale.Key);
+                    }
 
-                    AppendValues(num);
+                    AppendValues(num.ToString());
 
                     return prefix + builder.ToString().Trim();
+
                 }
+
             }
 
-            foreach (var scale in scale)
-                num = Append(num, scale.Key);
+            foreach (var scale in Scale)
+            {
+                if (BigInteger.Parse(scale.Key) > num)
+                {
+                    continue;
+                }
+                switch (num)
+                {
+                    case var expression when num >= BigInteger.Parse(scale.Key):
+                        AppendValues(num.ToString());
+                        return builder.ToString().Trim();
 
-            AppendValues(num);
+                    default:
+                        break;
+                }
+
+                //string outOfScaleValue = Convert.ToString(num);
+                //string outOfScaleNumber = outOfScaleValue;
+                //outOfScaleNumber = Append(num.ToString(), scale.Key);
+            }
+
+
+
+            AppendValues(num.ToString());
 
             return builder.ToString().Trim();
         }
+
         private string Append(string num, string scale)
         {
             if (num.Contains(","))
-			{
+            {
                 num = num.Replace(",", "");
             }
-            
+
             if (BigInteger.Parse(num) > BigInteger.Parse(scale) - 1)
             {
                 var baseScale = num;
@@ -98,6 +107,7 @@ namespace Exercice01.Core
             }
             return num;
         }
+
         private string AppendValues(string num)
         {
             num = AppendQuintillions(num);
@@ -113,12 +123,11 @@ namespace Exercice01.Core
             return num;
         }
 
-
         private void AppendUnits(string num)
         {
             if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) <= 9)
             {
-                builder.AppendFormat("{0} ", textString[num]);
+                builder.AppendFormat("{0} ", TextString[num]);
             }
         }
 
@@ -128,11 +137,11 @@ namespace Exercice01.Core
             {
                 var tens = (Convert.ToUInt64(num) / 10) * 10;
 
-                bool keyExists = textString.ContainsKey(tens.ToString());
+                bool keyExists = TextString.ContainsKey(tens.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} ", textString[tens.ToString()]);
+                    builder.AppendFormat("{0} ", TextString[tens.ToString()]);
                     num = (Convert.ToUInt64(num) - tens).ToString();
                 }
                 else
@@ -151,32 +160,32 @@ namespace Exercice01.Core
             {
                 var hundreds = Convert.ToUInt64(num) / 100;
 
-                bool keyExists = textString.ContainsKey(hundreds.ToString());
+                bool keyExists = TextString.ContainsKey(hundreds.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} hundred ", textString[hundreds.ToString()]);
+                    builder.AppendFormat("{0} hundred ", TextString[hundreds.ToString()]);
                     num = (Convert.ToUInt64(num) - (hundreds * 100)).ToString();
 
                     if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
                     {
-                        builder.AppendFormat($"{and}", textString[hundreds.ToString()]);
+                        builder.AppendFormat($"{and}", TextString[hundreds.ToString()]);
                     }
                 }
                 else
                 {
                     AppendValues(hundreds.ToString());
-                    builder.AppendFormat("{0} hundred ", textString[hundreds.ToString()]);
+                    builder.AppendFormat("{0} hundred ", TextString[hundreds.ToString()]);
                     num = (Convert.ToUInt64(num) - (hundreds * 100)).ToString();
 
                     if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
                     {
-                        builder.AppendFormat($", ", textString[hundreds.ToString()]);
+                        builder.AppendFormat($", ", TextString[hundreds.ToString()]);
                     }
 
-                    if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100 )
-					{
-                        builder.AppendFormat($"{and}", textString[hundreds.ToString()]);
+                    if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
+                    {
+                        builder.AppendFormat($"{and}", TextString[hundreds.ToString()]);
                     }
                 }
 
@@ -190,17 +199,17 @@ namespace Exercice01.Core
             {
                 var thousands = Convert.ToUInt64(num) / 1000;
 
-                bool keyExists = textString.ContainsKey(thousands.ToString());
+                bool keyExists = TextString.ContainsKey(thousands.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} thousand ", textString[thousands.ToString()]);
+                    builder.AppendFormat("{0} thousand ", TextString[thousands.ToString()]);
                 }
                 else
                 {
-                    textString.Add(thousands.ToString(), string.Empty.Trim());
+                    TextString.Add(thousands.ToString(), string.Empty.Trim());
                     AppendValues(thousands.ToString());
-                    builder.AppendFormat("{0} thousand ", textString[thousands.ToString()]).Replace("  ", " ");
+                    builder.AppendFormat("{0} thousand ", TextString[thousands.ToString()]).Replace("  ", " ");
 
                 }
 
@@ -208,12 +217,12 @@ namespace Exercice01.Core
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
                 {
-                    builder.AppendFormat($", ", textString[thousands.ToString()]);
+                    builder.AppendFormat($", ", TextString[thousands.ToString()]);
                 }
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
                 {
-                    builder.AppendFormat($"{and}", textString[thousands.ToString()]);
+                    builder.AppendFormat($"{and}", TextString[thousands.ToString()]);
                 }
             }
 
@@ -226,17 +235,17 @@ namespace Exercice01.Core
             {
                 var millions = Convert.ToUInt64(num) / 1000000;
 
-                bool keyExists = textString.ContainsKey(millions.ToString());
+                bool keyExists = TextString.ContainsKey(millions.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} million ", textString[millions.ToString()]);
+                    builder.AppendFormat("{0} million ", TextString[millions.ToString()]);
                 }
                 else
                 {
-                    textString.Add(millions.ToString(), string.Empty.Trim());
+                    TextString.Add(millions.ToString(), string.Empty.Trim());
                     AppendValues(millions.ToString());
-                    builder.AppendFormat("{0} million ", textString[millions.ToString()]).Replace("  ", " ");
+                    builder.AppendFormat("{0} million ", TextString[millions.ToString()]).Replace("  ", " ");
 
                 }
 
@@ -244,12 +253,12 @@ namespace Exercice01.Core
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
                 {
-                    builder.AppendFormat($", ", textString[millions.ToString()]);
+                    builder.AppendFormat($", ", TextString[millions.ToString()]);
                 }
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
                 {
-                    builder.AppendFormat($"{and}", textString[millions.ToString()]);
+                    builder.AppendFormat($"{and}", TextString[millions.ToString()]);
                 }
 
             }
@@ -262,17 +271,17 @@ namespace Exercice01.Core
             {
                 var billions = Convert.ToUInt64(num) / 1000000000;
 
-                bool keyExists = textString.ContainsKey(billions.ToString());
+                bool keyExists = TextString.ContainsKey(billions.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} billion ", textString[billions.ToString()]);
+                    builder.AppendFormat("{0} billion ", TextString[billions.ToString()]);
                 }
                 else
                 {
-                    textString.Add(billions.ToString(), string.Empty.Trim());
+                    TextString.Add(billions.ToString(), string.Empty.Trim());
                     AppendValues(billions.ToString());
-                    builder.AppendFormat("{0} billion ", textString[billions.ToString()]).Replace("  ", " ");
+                    builder.AppendFormat("{0} billion ", TextString[billions.ToString()]).Replace("  ", " ");
 
                 }
 
@@ -280,13 +289,13 @@ namespace Exercice01.Core
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
                 {
-                    builder.AppendFormat($", ", textString[billions.ToString()]);
+                    builder.AppendFormat($", ", TextString[billions.ToString()]);
                 }
 
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
                 {
-                    builder.AppendFormat($"{and}", textString[billions.ToString()]);
+                    builder.AppendFormat($"{and}", TextString[billions.ToString()]);
                 }
 
             }
@@ -299,17 +308,17 @@ namespace Exercice01.Core
             {
                 var trillions = Convert.ToUInt64(num) / 1000000000000;
 
-                bool keyExists = textString.ContainsKey(trillions.ToString());
+                bool keyExists = TextString.ContainsKey(trillions.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} trillion ", textString[trillions.ToString()]);
+                    builder.AppendFormat("{0} trillion ", TextString[trillions.ToString()]);
                 }
                 else
                 {
-                    textString.Add(trillions.ToString(), string.Empty.Trim());
+                    TextString.Add(trillions.ToString(), string.Empty.Trim());
                     AppendValues(trillions.ToString());
-                    builder.AppendFormat("{0} trillion ", textString[trillions.ToString()]).Replace("  ", " ");
+                    builder.AppendFormat("{0} trillion ", TextString[trillions.ToString()]).Replace("  ", " ");
 
                 }
 
@@ -317,12 +326,12 @@ namespace Exercice01.Core
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
                 {
-                    builder.AppendFormat($", ", textString[trillions.ToString()]);
+                    builder.AppendFormat($", ", TextString[trillions.ToString()]);
                 }
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
                 {
-                    builder.AppendFormat($"{and}", textString[trillions.ToString()]);
+                    builder.AppendFormat($"{and}", TextString[trillions.ToString()]);
                 }
 
             }
@@ -335,17 +344,17 @@ namespace Exercice01.Core
             {
                 var quadrillions = Convert.ToUInt64(num) / 1000000000000000;
 
-                bool keyExists = textString.ContainsKey(quadrillions.ToString());
+                bool keyExists = TextString.ContainsKey(quadrillions.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} quadrillion ", textString[quadrillions.ToString()]);
+                    builder.AppendFormat("{0} quadrillion ", TextString[quadrillions.ToString()]);
                 }
                 else
                 {
-                    textString.Add(quadrillions.ToString(), string.Empty.Trim());
+                    TextString.Add(quadrillions.ToString(), string.Empty.Trim());
                     AppendValues(quadrillions.ToString());
-                    builder.AppendFormat("{0} quadrillion ", textString[quadrillions.ToString()]).Replace("  ", " ");
+                    builder.AppendFormat("{0} quadrillion ", TextString[quadrillions.ToString()]).Replace("  ", " ");
 
                 }
 
@@ -353,12 +362,12 @@ namespace Exercice01.Core
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
                 {
-                    builder.AppendFormat($", ", textString[quadrillions.ToString()]);
+                    builder.AppendFormat($", ", TextString[quadrillions.ToString()]);
                 }
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
                 {
-                    builder.AppendFormat($"{and}", textString[quadrillions.ToString()]);
+                    builder.AppendFormat($"{and}", TextString[quadrillions.ToString()]);
                 }
 
             }
@@ -367,23 +376,23 @@ namespace Exercice01.Core
 
         private string AppendQuintillions(string num)
         {
-			BigInteger convertedString = BigInteger.Parse(num);
+            BigInteger convertedString = BigInteger.Parse(num);
 
-			if (convertedString >= 1000000000000000000)
+            if (convertedString >= 1000000000000000000)
             {
                 var quintillions = convertedString / 1000000000000000000;
 
-                bool keyExists = textString.ContainsKey(quintillions.ToString());
+                bool keyExists = TextString.ContainsKey(quintillions.ToString());
 
                 if (keyExists)
                 {
-                    builder.AppendFormat("{0} quintillion ", textString[quintillions.ToString()]);
+                    builder.AppendFormat("{0} quintillion ", TextString[quintillions.ToString()]);
                 }
                 else
                 {
-                    textString.Add(quintillions.ToString(), string.Empty.Trim());
+                    TextString.Add(quintillions.ToString(), string.Empty.Trim());
                     AppendValues(quintillions.ToString());
-                    builder.AppendFormat("{0} quintillion ", textString[quintillions.ToString()]).Replace("  ", " ");
+                    builder.AppendFormat("{0} quintillion ", TextString[quintillions.ToString()]).Replace("  ", " ");
 
                 }
 
@@ -393,12 +402,12 @@ namespace Exercice01.Core
 
                 if (BigInteger.Parse(num) > 0 && BigInteger.Parse(num) > 100)
                 {
-                    builder.AppendFormat($", ", textString[quintillions.ToString()]);
+                    builder.AppendFormat($", ", TextString[quintillions.ToString()]);
                 }
 
                 if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
                 {
-                    builder.AppendFormat($"{and}", textString[quintillions.ToString()]);
+                    builder.AppendFormat($"{and}", TextString[quintillions.ToString()]);
                 }
             }
             return num;
@@ -407,44 +416,47 @@ namespace Exercice01.Core
 
         private void Initialize()
         {
-            textString.Add("0", "Zero");
-            textString.Add("1", "One");
-            textString.Add("2", "Two");
-            textString.Add("3", "Three");
-            textString.Add("4", "Four");
-            textString.Add("5", "Five");
-            textString.Add("6", "Six");
-            textString.Add("7", "Seven");
-            textString.Add("8", "Eight");
-            textString.Add("9", "Nine");
-            textString.Add("10", "Ten");
-            textString.Add("11", "Eleven");
-            textString.Add("12", "Twelve");
-            textString.Add("13", "Thirteen");
-            textString.Add("14", "Fourteen");
-            textString.Add("15", "Fifteen");
-            textString.Add("16", "Sixteen");
-            textString.Add("17", "Seventeen");
-            textString.Add("18", "Eighteen");
-            textString.Add("19", "Nineteen");
-            textString.Add("20", "Twenty");
-            textString.Add("30", "Thirty");
-            textString.Add("40", "Forty");
-            textString.Add("50", "Fifty");
-            textString.Add("60", "Sixty");
-            textString.Add("70", "Seventy");
-            textString.Add("80", "Eighty");
-            textString.Add("90", "Ninety");
-            textString.Add("100", "Hundred");
+            TextString.Add("0", "Zero");
+            TextString.Add("1", "One");
+            TextString.Add("2", "Two");
+            TextString.Add("3", "Three");
+            TextString.Add("4", "Four");
+            TextString.Add("5", "Five");
+            TextString.Add("6", "Six");
+            TextString.Add("7", "Seven");
+            TextString.Add("8", "Eight");
+            TextString.Add("9", "Nine");
+            TextString.Add("10", "Ten");
+            TextString.Add("11", "Eleven");
+            TextString.Add("12", "Twelve");
+            TextString.Add("13", "Thirteen");
+            TextString.Add("14", "Fourteen");
+            TextString.Add("15", "Fifteen");
+            TextString.Add("16", "Sixteen");
+            TextString.Add("17", "Seventeen");
+            TextString.Add("18", "Eighteen");
+            TextString.Add("19", "Nineteen");
+            TextString.Add("20", "Twenty");
+            TextString.Add("30", "Thirty");
+            TextString.Add("40", "Forty");
+            TextString.Add("50", "Fifty");
+            TextString.Add("60", "Sixty");
+            TextString.Add("70", "Seventy");
+            TextString.Add("80", "Eighty");
+            TextString.Add("90", "Ninety");
+            TextString.Add("100", "One Hundred");
 
-            scale.Add("1000000000000000000", "Quintillion");
-            scale.Add("1000000000000000", "Quadrillion");
-            scale.Add("1000000000000", "Trillion");
-            scale.Add("1000000000", "Billion");
-            scale.Add("1000000", "Million");
-            scale.Add("1000", "Thousand");
-            scale.Add("100", "Hundred");
-            
+            Scale.Add("1000000000000000000", "Quintillion");
+            Scale.Add("1000000000000000", "Quadrillion");
+            Scale.Add("1000000000000", "Trillion");
+            Scale.Add("1000000000", "Billion");
+            Scale.Add("1000000", "Million");
+            Scale.Add("1000", "Thousand");
+            Scale.Add("100", "Hundred");
+
         }
+
     }
+
+
 }

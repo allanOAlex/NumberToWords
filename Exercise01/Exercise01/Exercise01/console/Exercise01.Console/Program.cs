@@ -13,7 +13,6 @@ namespace Exercise01.ConsoleApp
 
 			Console.WriteLine(input.ToWords());
 
-			
 			Console.ReadKey();
 		}
 

@@ -22,10 +22,6 @@ namespace Exercice01.Core
     {
         private Dictionary<string, string> textString = new Dictionary<string, string>();
         private Dictionary<string, string> scale = new Dictionary<string, string>();
-        private int integer;
-        private BigInteger bigInteger;
-        private string prefix = "negative ";
-        private string and = "and ";
 
         private StringBuilder builder;
 
@@ -44,38 +40,6 @@ namespace Exercice01.Core
                 return builder.ToString();
             }
 
-			if (int.TryParse(num, out integer))
-			{
-                if (Convert.ToInt32(num) < Convert.ToInt32("0"))
-				{
-                    num = num.Replace("-", "");
-
-                    foreach (var scale in scale)
-                        num = Append(num, scale.Key);
-
-                    AppendValues(num);
-
-                    return prefix + builder.ToString().Trim();
-
-                }
-
-            }
-
-            if (BigInteger.TryParse(num, out bigInteger))
-            {
-                if (BigInteger.Parse(num) < Convert.ToInt32("0"))
-				{
-                    num = num.Replace("-", "");
-
-                    foreach (var scale in scale)
-                        num = Append(num, scale.Key);
-
-                    AppendValues(num);
-
-                    return prefix + builder.ToString().Trim();
-                }
-            }
-
             foreach (var scale in scale)
                 num = Append(num, scale.Key);
 
@@ -85,11 +49,8 @@ namespace Exercice01.Core
         }
         private string Append(string num, string scale)
         {
-            if (num.Contains(","))
-			{
-                num = num.Replace(",", "");
-            }
-            
+            num = num.Replace(",","");
+
             if (BigInteger.Parse(num) > BigInteger.Parse(scale) - 1)
             {
                 var baseScale = num;
@@ -157,27 +118,11 @@ namespace Exercice01.Core
                 {
                     builder.AppendFormat("{0} hundred ", textString[hundreds.ToString()]);
                     num = (Convert.ToUInt64(num) - (hundreds * 100)).ToString();
-
-                    if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
-                    {
-                        builder.AppendFormat($"{and}", textString[hundreds.ToString()]);
-                    }
                 }
                 else
                 {
                     AppendValues(hundreds.ToString());
-                    builder.AppendFormat("{0} hundred ", textString[hundreds.ToString()]);
                     num = (Convert.ToUInt64(num) - (hundreds * 100)).ToString();
-
-                    if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
-                    {
-                        builder.AppendFormat($", ", textString[hundreds.ToString()]);
-                    }
-
-                    if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100 )
-					{
-                        builder.AppendFormat($"{and}", textString[hundreds.ToString()]);
-                    }
                 }
 
             }
@@ -205,16 +150,6 @@ namespace Exercice01.Core
                 }
 
                 num = (Convert.ToUInt64(num) - (thousands * 1000)).ToString();
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
-                {
-                    builder.AppendFormat($", ", textString[thousands.ToString()]);
-                }
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
-                {
-                    builder.AppendFormat($"{and}", textString[thousands.ToString()]);
-                }
             }
 
             return num;
@@ -242,19 +177,10 @@ namespace Exercice01.Core
 
                 num = (Convert.ToUInt64(num) - (millions * 1000000)).ToString();
 
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
-                {
-                    builder.AppendFormat($", ", textString[millions.ToString()]);
-                }
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
-                {
-                    builder.AppendFormat($"{and}", textString[millions.ToString()]);
-                }
-
             }
             return num;
         }
+
 
         private string AppendBillions(string num)
         {
@@ -277,17 +203,6 @@ namespace Exercice01.Core
                 }
 
                 num = (Convert.ToUInt64(num) - (billions * 1000000000)).ToString();
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
-                {
-                    builder.AppendFormat($", ", textString[billions.ToString()]);
-                }
-
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
-                {
-                    builder.AppendFormat($"{and}", textString[billions.ToString()]);
-                }
 
             }
             return num;
@@ -315,22 +230,14 @@ namespace Exercice01.Core
 
                 num = (Convert.ToUInt64(num) - (trillions * 1000000000000)).ToString();
 
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
-                {
-                    builder.AppendFormat($", ", textString[trillions.ToString()]);
-                }
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
-                {
-                    builder.AppendFormat($"{and}", textString[trillions.ToString()]);
-                }
-
             }
             return num;
         }
 
         private string AppendQuadrillions(string num)
         {
+            num = num.Replace(",", "");
+
             if (Convert.ToUInt64(num) >= 1000000000000000)
             {
                 var quadrillions = Convert.ToUInt64(num) / 1000000000000000;
@@ -351,16 +258,6 @@ namespace Exercice01.Core
 
                 num = (Convert.ToUInt64(num) - (quadrillions * 1000000000000000)).ToString();
 
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) > 100)
-                {
-                    builder.AppendFormat($", ", textString[quadrillions.ToString()]);
-                }
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
-                {
-                    builder.AppendFormat($"{and}", textString[quadrillions.ToString()]);
-                }
-
             }
             return num;
         }
@@ -368,8 +265,10 @@ namespace Exercice01.Core
         private string AppendQuintillions(string num)
         {
 			BigInteger convertedString = BigInteger.Parse(num);
+            num = string.Format("{0:N0}", convertedString);
+            string testValue = string.Format("{0:N0}", 1000000000000000000);
 
-			if (convertedString >= 1000000000000000000)
+            if (convertedString >= 1000000000000000000)
             {
                 var quintillions = convertedString / 1000000000000000000;
 
@@ -390,16 +289,6 @@ namespace Exercice01.Core
                 BigInteger bitInt = convertedString - quintillions * 1000000000000000000;
 
                 num = bitInt.ToString();
-
-                if (BigInteger.Parse(num) > 0 && BigInteger.Parse(num) > 100)
-                {
-                    builder.AppendFormat($", ", textString[quintillions.ToString()]);
-                }
-
-                if (Convert.ToUInt64(num) > 0 && Convert.ToUInt64(num) < 100)
-                {
-                    builder.AppendFormat($"{and}", textString[quintillions.ToString()]);
-                }
             }
             return num;
         }
@@ -437,14 +326,13 @@ namespace Exercice01.Core
             textString.Add("90", "Ninety");
             textString.Add("100", "Hundred");
 
-            scale.Add("1000000000000000000", "Quintillion");
-            scale.Add("1000000000000000", "Quadrillion");
-            scale.Add("1000000000000", "Trillion");
-            scale.Add("1000000000", "Billion");
-            scale.Add("1000000", "Million");
             scale.Add("1000", "Thousand");
-            scale.Add("100", "Hundred");
-            
+            scale.Add("1000000", "Million");
+            scale.Add("1000000000", "Billion");
+            scale.Add("1000000000000", "Trillion");
+            scale.Add("1000000000000000", "Quadrillion");
+            scale.Add("1000000000000000000", "Quintillion");
+
         }
     }
 }
